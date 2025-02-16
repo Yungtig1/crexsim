@@ -1,12 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { AnimatedPopup } from "@/components/ui/animated-popup"
 
+// Wrap the main component with Suspense
 export default function VerifyEmail() {
+  return (
+    <Suspense fallback={<div>Loading verification...</div>}>
+      <VerifyEmailForm />
+    </Suspense>
+  )
+}
+
+// Move the logic to a child component
+function VerifyEmailForm() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""])
   const [isLoading, setIsLoading] = useState(false)
   const [popupState, setPopupState] = useState({ show: false, isSuccess: false, message: "" })
@@ -25,7 +35,6 @@ export default function VerifyEmail() {
     newOtp[index] = value
     setOtp(newOtp)
 
-    // Move to next input if value is entered
     if (value && index < 5) {
       document.getElementById(`otp-${index + 1}`).focus()
     }
@@ -45,7 +54,6 @@ export default function VerifyEmail() {
       })
 
       const data = await response.json()
-
       if (response.ok) {
         setPopupState({ show: true, isSuccess: true, message: data.message })
         setTimeout(() => router.push("/login"), 3000)
@@ -92,4 +100,3 @@ export default function VerifyEmail() {
     </div>
   )
 }
-
