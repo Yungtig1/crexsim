@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import dbConnect from "@/lib/mongoose"
 import User from "@/models/User"
 import { Resend } from "resend"
+import OTPVerificationEmail from "@/email/otp-verification"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
@@ -40,10 +41,10 @@ export async function POST(request) {
 
     // Send verification email For Production
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: `Crexsim <noreply@crexsim.xyz>`,
       to: email,
       subject: "Verify your email",
-      html: `Your OTP is: ${otp}. It will expire in 10 minutes.`,
+      react: OTPVerificationEmail({otp}),
     })
 
 

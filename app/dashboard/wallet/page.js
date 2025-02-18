@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { PlusCircle, Send } from "lucide-react"
+import { PlusCircle, BanknoteIcon as Bank, Building2, ArrowDownToLine } from "lucide-react"
 import { WalletCoinItem } from "@/components/dashboard/wallet-coin-item"
 import { useToast } from "@/hooks/use-toast"
 import {
@@ -18,15 +18,17 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 export default function WalletPage() {
   const [balance, setBalance] = useState(0)
   const [holdingCoins, setHoldingCoins] = useState([])
   const [tradedCoins, setTradedCoins] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [sendAmount, setSendAmount] = useState("")
-  const [recipientAddress, setRecipientAddress] = useState("")
-  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
+  const [withdrawAmount, setWithdrawAmount] = useState("")
+  const [withdrawMethod, setWithdrawMethod] = useState("")
+  const [isWithdrawDialogOpen, setIsWithdrawDialogOpen] = useState(false)
+  const [withdrawStep, setWithdrawStep] = useState(1)
   const router = useRouter()
   const { toast } = useToast()
 
@@ -71,23 +73,28 @@ export default function WalletPage() {
     }
   }
 
-
-  const handleSend = async (e) => {
+  const handleWithdraw = async (e) => {
     e.preventDefault()
-    setIsSendDialogOpen(false)
+    setIsWithdrawDialogOpen(false)
 
-    // Simulated failing send
-    setTimeout(() => {
-      toast({
-        variant: "destructive",
-        title: "Transaction Failed",
-        description: "The send operation could not be completed. Please try again later.",
-      })
-    }, 2000)
+    toast({
+      variant: "destructive",
+      title: "Withdrawal Failed",
+      description:
+        "We couldn't process your withdrawal at this time. Please contact support via the chat for assistance.",
+    })
 
     // Reset form
-    setSendAmount("")
-    setRecipientAddress("")
+    setWithdrawAmount("")
+    setWithdrawMethod("")
+    setWithdrawStep(1)
+  }
+
+  const handleDialogClose = () => {
+    setIsWithdrawDialogOpen(false)
+    setWithdrawStep(1)
+    setWithdrawAmount("")
+    setWithdrawMethod("")
   }
 
   if (isLoading) {
@@ -112,51 +119,73 @@ export default function WalletPage() {
               `$${balance.toLocaleString("en-US", { minimumFractionDigits: 2 })}`
             )}
           </div>
-          </CardContent>
+        </CardContent>
       </Card>
 
       <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
-        <Button className="flex-1 sm:flex-none" onClick={() => router.push('/dashboard/add-payment')}>
+        <Button className="flex-1 sm:flex-none" onClick={() => router.push("/dashboard/add-payment")}>
           <PlusCircle className="mr-2 h-4 w-4" /> Add Funds
         </Button>
-        <Dialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
+        <Dialog open={isWithdrawDialogOpen} onOpenChange={setIsWithdrawDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex-1 sm:flex-none">
-              <Send className="mr-2 h-4 w-4" /> Send
+            <Button className="flex-1 sm:flex-none" onClick={() => setIsWithdrawDialogOpen(true)}>
+              <ArrowDownToLine className="mr-2 h-4 w-4" /> Withdraw
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Send Funds</DialogTitle>
-              <DialogDescription>Enter the amount and recipient address to send funds.</DialogDescription>
+              <DialogTitle>Withdraw Funds</DialogTitle>
+              <DialogDescription>
+                {withdrawStep === 1 ? "Select your withdrawal method" : "Enter the amount you want to withdraw"}
+              </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSend} className="space-y-4">
-              <div>
-                <Label htmlFor="amount">Amount (USD)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  value={sendAmount}
-                  onChange={(e) => setSendAmount(e.target.value)}
-                  placeholder="0.00"
-                  required
-                />
+            {withdrawStep === 1 ? (
+              <div className="space-y-4">
+                <RadioGroup value={withdrawMethod} onValueChange={setWithdrawMethod}>
+                  <div className="flex items-center space-x-2 p-4 rounded-lg border cursor-pointer hover:bg-accent">
+                    <RadioGroupItem value="plaid" id="plaid" />
+                    <Label htmlFor="plaid" className="flex items-center cursor-pointer flex-1">
+                      <Bank className="h-5 w-5 mr-2" />
+                      Plaid Bank Account
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-4 rounded-lg border cursor-pointer hover:bg-accent">
+                    <RadioGroupItem value="manual" id="manual" />
+                    <Label htmlFor="manual" className="flex items-center cursor-pointer flex-1">
+                      <Building2 className="h-5 w-5 mr-2" />
+                      Manual Bank Account
+                    </Label>
+                  </div>
+                </RadioGroup>
+                <Button
+                  className="w-full"
+                  onClick={() => withdrawMethod && setWithdrawStep(2)}
+                  disabled={!withdrawMethod}
+                >
+                  Continue
+                </Button>
               </div>
-              <div>
-                <Label htmlFor="address">Recipient Address</Label>
-                <Input
-                  id="address"
-                  type="text"
-                  value={recipientAddress}
-                  onChange={(e) => setRecipientAddress(e.target.value)}
-                  placeholder="Enter recipient address"
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Send
-              </Button>
-            </form>
+            ) : (
+              <form onSubmit={handleWithdraw} className="space-y-4">
+                <div>
+                  <Label htmlFor="amount">Amount (USD)</Label>
+                  <Input
+                    id="amount"
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    placeholder="0.00"
+                    required
+                  />
+                </div>
+                <div className="flex justify-between">
+                  <Button type="button" variant="outline" onClick={() => setWithdrawStep(1)}>
+                    Back
+                  </Button>
+                  <Button type="submit">Withdraw</Button>
+                </div>
+              </form>
+            )}
           </DialogContent>
         </Dialog>
       </div>
@@ -182,7 +211,6 @@ export default function WalletPage() {
             ))}
           </div>
         </TabsContent>
-
         <TabsContent value="traded">
           <div className="space-y-4">
             {tradedCoins.map((coin) => (

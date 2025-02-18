@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { Home, Wallet, BarChart2, User, MessageCircle } from "lucide-react"
 import TawkToChat from "@/components/TawkToChat"
+import { isTokenValid } from "@/lib/auth"
 
 const navItems = [
   { icon: Home, label: "Home", href: "/dashboard" },

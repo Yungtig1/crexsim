@@ -7,7 +7,7 @@ import { Eye, EyeOff, Copy } from "lucide-react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Modal } from "@/components/ui/modal"
+import { AnimatedPopup } from "@/components/ui/animated-popup"
 
 export default function Register() {
   const [email, setEmail] = useState("")
@@ -15,7 +15,7 @@ export default function Register() {
   const [name, setName] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [modalState, setModalState] = useState({ isOpen: false, title: "", message: "", otp: "" })
+  const [popupState, setPopupState] = useState({ show: false, isSuccess: false, message: "" })
   const router = useRouter()
 
   const handleSubmit = async (e) => {
@@ -31,60 +31,41 @@ export default function Register() {
       const data = await response.json()
 
       if (response.ok) {
-        setModalState({
-          isOpen: true,
-          title: "Registration Successful",
-          message: "Your account has been created successfully. Please verify your email using the OTP below:",
-          otp: data.otp,
-        })
+        setPopupState({ show: true, isSuccess: true, message: "Registration successful" })
+        setTimeout(() => {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+        }, 1500)
       } else {
-        setModalState({
-          isOpen: true,
-          title: "Registration Failed",
-          message: data.error || "An error occurred during registration",
-        })
+        const data = await response.json()
+        setPopupState({ show: true, isSuccess: false, message: data.error || "Registration failed" })
       }
     } catch (error) {
-      setModalState({
-        isOpen: true,
-        title: "Error",
-        message: "An error occurred during registration",
-      })
+      setPopupState({ show: true, isSuccess: false, message: "An error occurred during login" })
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleCopyOTP = () => {
-    navigator.clipboard.writeText(modalState.otp)
-  }
+  // const handleCopyOTP = () => {
+  //   navigator.clipboard.writeText(modalState.otp)
+  // }
 
-  const closeModal = () => {
-    setModalState({ ...modalState, isOpen: false })
-    if (modalState.otp) {
-      router.push(`/verify-email?email=${encodeURIComponent(email)}`)
-    }
-  }
+  // const closeModal = () => {
+  //   setModalState({ ...modalState, isOpen: false })
+  //   if (modalState.otp) {
+  //     router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+  //   }
+  // }
 
   return (
     <div className="min-h-screen bg-background flex flex-col justify-center px-4 sm:px-6 lg:px-8">
-      <Modal isOpen={modalState.isOpen} onClose={closeModal} title={modalState.title}>
-        <p>{modalState.message}</p>
-        {modalState.otp && (
-          <div className="mt-4">
-            <p className="font-semibold">Your OTP:</p>
-            <div className="flex items-center justify-between bg-accent p-2 rounded mt-2">
-              <code className="text-lg">{modalState.otp}</code>
-              <Button variant="ghost" size="icon" onClick={handleCopyOTP}>
-                <Copy className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-        <Button className="w-full mt-4" onClick={closeModal}>
-          Close
-        </Button>
-      </Modal>
+      {popupState.show && (
+        <AnimatedPopup
+          isSuccess={popupState.isSuccess}
+          message={popupState.message}
+          onClose={() => setPopupState({ ...popupState, show: false })}
+        />
+      )}
 
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <motion.div
