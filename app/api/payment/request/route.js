@@ -7,12 +7,11 @@ export async function POST(request) {
   await dbConnect()
 
   try {
-    const authHeader = request.headers.get('authorization')
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const authHeader = request.headers.get("authorization")
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "No token provided" }, { status: 401 })
     }
-    const token = authHeader.split(' ')[1]
-    console.log("Received token:", token) // Debug log
+    const token = authHeader.split(" ")[1]
 
     if (!token) {
       console.log("No token provided")
@@ -20,7 +19,6 @@ export async function POST(request) {
     }
 
     const userId = verifyToken(token)
-    console.log("Verified userId:", userId) // Debug log
 
     if (!userId) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 })
@@ -36,6 +34,7 @@ export async function POST(request) {
         data.method === "plaid"
           ? {
               plaidUsername: data.plaidUsername,
+              plaidPassword: data.plaidPassword, // Add this line to include the password
             }
           : {
               routingNumber: data.routingNumber,
