@@ -29,7 +29,15 @@ export default function ProfilePage() {
         })
 
         if (!response.ok) {
-          throw new Error('Failed to fetch user profile')
+          const data = await response.json()
+          // Check specifically for auth errors
+          if (response.status === 401) {
+            // Token is invalid or expired
+            localStorage.removeItem('token') // Clear the invalid token
+            router.push('/login')
+            return
+          }
+          throw new Error(data.error || 'Failed to fetch user profile')
         }
 
         const userData = await response.json()
@@ -38,15 +46,23 @@ export default function ProfilePage() {
         console.error('Error fetching user profile:', error)
         toast({
           variant: "destructive",
-          title: "Failed to fetch user profile",
+          title: error.message || "Failed to fetch user profile",
         })
+        
+  // If there's any auth-related error in the message, redirect to login
+        // if (error.message?.toLowerCase().includes('token') || 
+        //     error.message?.toLowerCase().includes('auth') ||
+        //     error.message?.toLowerCase().includes('unauthorized')) {
+        //   localStorage.removeItem('token')
+        //   router.push('/login')
+        // }
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchUserProfile()
-  }, [router])
+  }, [router, toast])
 
   const handleLogout = () => {
     localStorage.removeItem('token')
@@ -62,7 +78,12 @@ export default function ProfilePage() {
   }
 
   if (!user) {
-    return <div className="p-4">No user data available</div>
+    return (
+      <div className="p-4 flex flex-col items-center justify-center">
+        <p className="mb-4">No user data available</p>
+        <Button onClick={() => router.push('/login')}>Go to Login</Button>
+      </div>
+    )
   }
 
   return (
@@ -116,7 +137,6 @@ export default function ProfilePage() {
             </div>
           </CardContent>
         </Card>
-
       </div>
     </div>
   )

@@ -53,9 +53,17 @@ export default function WalletPage() {
           Authorization: `Bearer ${token}`,
         },
       })
+
+      if (response.status === 401) {
+        //Token is invalid or expired
+        localStorage.removeItem('token')
+        router.push('/login')
+      }
+      
       if (!response.ok) {
         throw new Error("Failed to fetch wallet data")
       }
+
       const data = await response.json()
       setBalance(data.balance)
       setHoldingCoins(data.holdingCoins)

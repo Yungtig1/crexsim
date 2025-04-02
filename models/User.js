@@ -58,7 +58,10 @@ const UserSchema = new mongoose.Schema(
       amount: Number,
       averagePrice: Number
     }],
-    transactions: [TransactionSchema]
+    transactions: [TransactionSchema],
+    endConversationToken: {
+      type: String,
+    },
   },
   { timestamps: true },
 )

@@ -3,8 +3,8 @@
 import { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { Home, Wallet, BarChart2, User, MessageCircle, Mail } from "lucide-react"
-import TawkToChat from "@/components/TawkToChat"
+import { Home, Wallet, BarChart2, User } from "lucide-react"
+import SupportChat from "@/components/SupportChat"
 
 const navItems = [
   { icon: Home, label: "Home", href: "/dashboard" },
@@ -46,26 +46,14 @@ export default function DashboardLayout({ children }) {
             </Link>
           ))}
         </nav>
-
-        {/* Direct contact option for desktop */}
-        <div className="p-4 border-t border-accent">
-          <a
-            href="mailto:crexsim@outlook.com"
-            className="flex items-center space-x-2 p-2 rounded hover:bg-accent text-primary transition-colors"
-          >
-            <Mail className="w-5 h-5" />
-            <span>Contact Support</span>
-          </a>
-        </div>
       </aside>
 
       {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden">{children}</main>
 
       {/* Bottom navigation for mobile */}
-      <nav className="md:hidden bg-background border-t border-accent flex flex-col p-2 fixed bottom-0 left-0 right-0">
-        <div className="flex justify-around">
-        {navItems.slice(0, 3).map((item) => (
+      <nav className="md:hidden bg-background border-t border-accent flex justify-around p-2 fixed bottom-0 left-0 right-0">
+        {navItems.map((item) => (
           <Link
             key={item.href}
             href={item.href}
@@ -75,22 +63,10 @@ export default function DashboardLayout({ children }) {
             <span className="text-xs">{item.label}</span>
           </Link>
         ))}
-        <button className="flex flex-col items-center p-2">
-          <MessageCircle className="w-6 h-6 hidden" />
-          <span className="text-xs hidden">Support</span>
-        </button>
-        </div>
-      {/* Direct contact option for mobile - positioned above the bottom navigation */}
-      <div className="md:hidden bg-background py-0.5 flex justify-center">
-        <a href="mailto:crexsim@outlook.com" className="flex items-center justify-center space-x-2 text-primary">
-          <Mail className="w-5 h-5" />
-          <span className="text-sm">Contact Support via Email</span>
-        </a>
-      </div>
       </nav>
 
-
-      <TawkToChat />
+      {/* Support Chat Component */}
+      <SupportChat />
     </div>
   )
 }
