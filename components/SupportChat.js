@@ -309,7 +309,7 @@ export default function SupportChat() {
         <div
           className={`
             bg-background border border-border shadow-xl flex flex-col z-50
-            ${isMobile ? "fixed inset-0 h-screen w-screen" : "fixed bottom-4 right-4 w-80 sm:w-96 h-96 rounded-lg"}
+            ${isMobile ? "fixed inset-0 h-[100dvh] w-screen" : "fixed bottom-4 right-4 w-80 sm:w-96 h-96 rounded-lg"}
           `}
         >
           {/* Header */}
@@ -373,19 +373,21 @@ export default function SupportChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input */}
-          <form onSubmit={handleSendMessage} className="p-3 border-t border-border flex gap-2">
-            <Input
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1"
-              disabled={isSending}
-            />
-            <Button type="submit" size="icon" disabled={isSending}>
-              <Send className="h-4 w-4" />
-            </Button>
-          </form>
+          {/* Input - Fixed at bottom for mobile */}
+          <div className="sticky bottom-0 left-0 right-0 bg-background border-t border-border">
+            <form onSubmit={handleSendMessage} className="p-3 flex gap-2">
+              <Input
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1"
+                disabled={isSending}
+              />
+              <Button type="submit" size="icon" disabled={isSending}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </form>
+          </div>
         </div>
       )}
     </>
