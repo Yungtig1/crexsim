@@ -294,8 +294,8 @@ export default function SupportChat() {
     <>
       {/* Chat button (only shown when chat is closed) */}
       {!isOpen && (
-        <Button onClick={() => setIsOpen(true)} className="fixed bottom-4 right-4 rounded-full h-12 w-12 p-0 shadow-lg">
-          <MessageCircle className="h-6 w-6" />
+        <Button onClick={() => setIsOpen(true)} className="fixed bottom-3 right-5 rounded-full h-16 w-16 p-0 shadow-lg">
+          <MessageCircle className="h-12 w-12" />
           {unreadCount > 0 && (
             <Badge className="absolute -top-2 -right-2 bg-red-500 text-white border-none" variant="destructive">
               {unreadCount}
